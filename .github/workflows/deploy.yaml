@@ -35,7 +35,7 @@ jobs:
         audience: sts.amazonaws.com
 
     - name: Update kubeconfig
-      run: aws eks update-kubeconfig --region us-east-1 --name adot-eks-clusters
+      run: aws eks update-kubeconfig --region us-east-1 --name adot-eks-clusters  # Correct cluster name
 
     - name: Bootstrap CDK
       run: npx cdk bootstrap
@@ -49,4 +49,4 @@ jobs:
         npx cdk deploy --require-approval never  # --require-approval never skips manual approval for IAM changes
 
     - name: Apply Kubernetes manifests
-      run: kubectl apply -f manifests/ -n aws-otel-eks
+      run: kubectl apply -f manifests/ -n kube-system

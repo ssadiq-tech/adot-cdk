@@ -1,0 +1,30 @@
+name: Deploy to EKS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v3
+      with:
+        role-to-assume: arn:aws:iam::131332286832:role/githubdeployrole 
+        aws-region: us-east-1
+
+    - name: Update kubeconfig
+      run: aws eks update-kubeconfig --region us-east-1 --name eksdemo
+
+    - name: Apply Kubernetes manifests
+      run: kubectl apply -f manifests/ -n otel

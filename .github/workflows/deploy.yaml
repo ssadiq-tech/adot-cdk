@@ -35,10 +35,10 @@ jobs:
         audience: sts.amazonaws.com
 
     - name: Update kubeconfig
-      run: aws eks update-kubeconfig --region us-east-1 --name adot-eks-clusters  # Correct cluster name
+      run: aws eks update-kubeconfig --region us-east-1 --name adot-eks-clusters
 
     - name: Bootstrap CDK
-      run: npx cdk bootstrap
+      run: npx cdk bootstrap aws://131332286832/us-east-1  # Specify account and region explicitly
 
     - name: Run CDK deploy
       run: |

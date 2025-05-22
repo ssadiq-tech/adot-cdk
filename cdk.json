@@ -1,6 +1,3 @@
 {
-  "app": "npx ts-node --project tsconfig.json app.ts",
-  "context": {
-    "aws:cdk:stackName": "AdotEKSStack"
-  }
+  "app": "npx ts-node --prefer-ts-exts bin/app.ts"
 }

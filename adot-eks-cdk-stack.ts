@@ -1,45 +1,37 @@
 import * as cdk from 'aws-cdk-lib';
-import * as eks from 'aws-cdk-lib/aws-eks';
-import * as k8s from 'aws-cdk-lib/aws-eks/lib/k8s';
-import * as fs from 'fs';
 import { Construct } from 'constructs';
+import * as eks from 'aws-cdk-lib/aws-eks';
+import * as fs from 'fs';
 
-export class AdotEKSStack extends cdk.Stack {
+export class AdotEksCdkStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    // Load the cluster (assuming it's already created in your account)
-    const cluster = eks.Cluster.fromClusterAttributes(this, 'Cluster', {
+    // Reference existing EKS cluster by name and role
+    const cluster = eks.Cluster.fromClusterAttributes(this, 'ExistingCluster', {
       clusterName: 'adot-eks-clusters',
-      clusterArn: 'arn:aws:iam::131332286832:role/eksctl-adot-eks-clusters-cluster-ServiceRole-H1pnlT7iEYi4',
-      oidcProvider: 'arn:aws:iam::131332286832:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/883752FFF3EFBDB7B44543F17F0C3358',
+      kubectlRoleArn: 'arn:aws:iam::131332286832:role/eksctl-adot-eks-clusters-cluster-ServiceRole-H1pnlT7iEYi4'
     });
 
-    // Load YAML files for the Kubernetes manifests
-    const otelAgentConf = fs.readFileSync('manifests/otel-agent-conf.yaml', 'utf8');
-    const awsOtelEksCI = fs.readFileSync('manifests/aws-otel-eks-ci.yaml', 'utf8');
-    const awsOtelSA = fs.readFileSync('manifests/aws-otel-sa.yaml', 'utf8');
-
-    // Apply the manifests to the cluster
-    new k8s.KubernetesManifest(this, 'otel-agent-config', {
+    // Apply aws-otel-sa.yaml
+    const otelSaManifest = fs.readFileSync('./manifests/aws-otel-sa.yaml', 'utf8');
+    cluster.addManifest('OtelServiceAccount', ...eks.KubernetesManifest.fromYaml(this, 'OtelSa', {
       cluster,
-      manifest: [
-        JSON.parse(otelAgentConf),  // Convert YAML to JSON
-      ],
-    });
+      manifest: [otelSaManifest],
+    }).toJson());
 
-    new k8s.KubernetesManifest(this, 'aws-otel-eks-ci', {
+    // Apply otel-agent-conf.yaml
+    const otelConfManifest = fs.readFileSync('./manifests/otel-agent-conf.yaml', 'utf8');
+    cluster.addManifest('OtelConfigMap', ...eks.KubernetesManifest.fromYaml(this, 'OtelConf', {
       cluster,
-      manifest: [
-        JSON.parse(awsOtelEksCI),  // Convert YAML to JSON
-      ],
-    });
+      manifest: [otelConfManifest],
+    }).toJson());
 
-    new k8s.KubernetesManifest(this, 'aws-otel-sa', {
+    // Apply aws-otel-eks-ci.yaml (DaemonSet)
+    const adotDaemonSetManifest = fs.readFileSync('./manifests/aws-otel-eks-ci.yaml', 'utf8');
+    cluster.addManifest('OtelDaemonSet', ...eks.KubernetesManifest.fromYaml(this, 'OtelDaemonSet', {
       cluster,
-      manifest: [
-        JSON.parse(awsOtelSA),  // Convert YAML to JSON
-      ],
-    });
+      manifest: [adotDaemonSetManifest],
+    }).toJson());
   }
 }

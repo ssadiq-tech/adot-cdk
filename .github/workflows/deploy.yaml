@@ -20,12 +20,12 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: '16'  # Ensure to match the version you're using
+        node-version: '18'
 
     - name: Install dependencies
       run: |
-        npm install -g aws-cdk  # Install AWS CDK globally
-        npm install              # Install project dependencies
+        npm install -g aws-cdk
+        npm install
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v3
@@ -34,19 +34,8 @@ jobs:
         aws-region: us-east-1
         audience: sts.amazonaws.com
 
-    - name: Update kubeconfig
-      run: aws eks update-kubeconfig --region us-east-1 --name adot-eks-clusters
-
     - name: Bootstrap CDK
-      run: npx cdk bootstrap aws://131332286832/us-east-1  # Specify account and region explicitly
+      run: npx cdk bootstrap aws://131332286832/us-east-1
 
-    - name: Run CDK deploy
-      run: |
-        # Synthesize CloudFormation template
-        npx cdk synth
-
-        # Deploy the CDK stack
-        npx cdk deploy --require-approval never  # --require-approval never skips manual approval for IAM changes
-
-    - name: Apply Kubernetes manifests
-      run: kubectl apply -f manifests/ -n kube-system
+    - name: Deploy CDK stack
+      run: npm run cdk-deploy

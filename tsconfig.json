@@ -3,11 +3,10 @@
     "target": "ES2020",
     "module": "CommonJS",
     "lib": ["es2020"],
-    "outDir": "./dist",
-    "rootDir": "./cdk",
     "strict": true,
-    "esModuleInterop": true
-  },
-  "include": ["cdk/**/*"],
-  "exclude": ["node_modules"]
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "dist"
+  }
 }

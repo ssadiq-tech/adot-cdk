@@ -32,6 +32,7 @@ jobs:
       with:
         role-to-assume: arn:aws:iam::131332286832:role/githubdeployrole
         aws-region: us-east-1
+        audience: sts.amazonaws.com
 
     - name: Update kubeconfig
       run: aws eks update-kubeconfig --region us-east-1 --name eksdemo

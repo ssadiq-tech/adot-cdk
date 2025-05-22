@@ -14,33 +14,33 @@ jobs:
       contents: read
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
 
-    - name: Install dependencies
-      run: |
-        npm install -g aws-cdk
-        npm install
+      - name: Install dependencies
+        run: |
+          npm install -g aws-cdk
+          npm ci
 
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v3
-      with:
-        role-to-assume: arn:aws:iam::131332286832:role/githubdeployrole
-        aws-region: us-east-1
-        audience: sts.amazonaws.com
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          role-to-assume: arn:aws:iam::131332286832:role/githubdeployrole
+          aws-region: us-east-1
+          audience: sts.amazonaws.com
 
-    - name: Bootstrap CDK
-      run: npx cdk bootstrap aws://131332286832/us-east-1
-      working-directory: ./adot-cdk
-    - name: Debug Directory Structure
-      run: |
-        pwd
-        ls -R
+      - name: Bootstrap CDK
+        run: npx cdk bootstrap aws://131332286832/us-east-1
 
-    - name: Deploy CDK stack
-      run: npm run cdk-deploy
+      - name: Debug Directory Structure
+        run: |
+          pwd
+          ls -R
+
+      - name: Deploy CDK stack
+        run: npm run cdk-deploy

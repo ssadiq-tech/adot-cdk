@@ -17,14 +17,29 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'  # Ensure to match the version you're using
+
+    - name: Install dependencies
+      run: |
+        npm install -g aws-cdk  # Install AWS CDK globally
+        npm install              # Install project dependencies
+
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v3
       with:
-        role-to-assume: arn:aws:iam::131332286832:role/githubdeployrole 
+        role-to-assume: arn:aws:iam::131332286832:role/githubdeployrole
         aws-region: us-east-1
 
     - name: Update kubeconfig
       run: aws eks update-kubeconfig --region us-east-1 --name eksdemo
 
-    - name: Apply Kubernetes manifests
-      run: kubectl apply -f manifests/ -n otel
+    - name: Run CDK deploy
+      run: |
+        # Synthesize CloudFormation template
+        cdk synth
+
+        # Deploy the CDK stack
+        cdk deploy --require-approval never  # --require-approval never skips manual approval for IAM changes

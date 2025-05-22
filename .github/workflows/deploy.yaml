@@ -36,6 +36,7 @@ jobs:
 
     - name: Bootstrap CDK
       run: npx cdk bootstrap aws://131332286832/us-east-1
+      working-directory: ./adot-cdk
 
     - name: Deploy CDK stack
       run: npm run cdk-deploy

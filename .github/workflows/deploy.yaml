@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -34,15 +35,18 @@ jobs:
         audience: sts.amazonaws.com
 
     - name: Update kubeconfig
-      run: aws eks update-kubeconfig --region us-east-1 --name eksdemo
+      run: aws eks update-kubeconfig --region us-east-1 --name adot-eks-clusters
+
+    - name: Bootstrap CDK
+      run: npx cdk bootstrap
 
     - name: Run CDK deploy
       run: |
         # Synthesize CloudFormation template
-        cdk synth
+        npx cdk synth
 
         # Deploy the CDK stack
-        cdk deploy --require-approval never  # --require-approval never skips manual approval for IAM changes
+        npx cdk deploy --require-approval never  # --require-approval never skips manual approval for IAM changes
 
     - name: Apply Kubernetes manifests
       run: kubectl apply -f manifests/ -n aws-otel-eks

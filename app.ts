@@ -1,5 +1,11 @@
+#!/usr/bin/env node
 import * as cdk from 'aws-cdk-lib';
-import { AdotEKSStack } from './adot-eks-cdk-stack';
+import { AdotEksCdkStack } from '../lib/adot-eks-cdk-stack';
 
 const app = new cdk.App();
-new AdotEKSStack(app, 'AdotEKSStack');
+new AdotEksCdkStack(app, 'AdotEksCdkStack', {
+  env: {
+    account: '131332286832',
+    region: 'us-east-1',
+  },
+});
